@@ -106,7 +106,7 @@ def main():
         os.mkdir('./img')
     except OSError:
         pass
-    image_path = r"C:\Users\shivji\Desktop\testImages\aflw-test.jpg"
+    image_path = r"E:\svnwc\Head_Pose_Estimation\FSA-Net\demo\img"
 
     # face_cascade = cv2.CascadeClassifier('lbpcascade_frontalface_improved.xml')
     # detector = MTCNN()
@@ -183,7 +183,8 @@ def main():
     imgDir = r"E:\svnwc\Head_Pose_Estimation\FSA-Net\demo\testImages"
     for image_path in os.listdir(imgDir):
         
-        input_img = cv2.imread(os.path.join(imgDir,image_path))
+        #input_img = cv2.imread(os.path.join(imgDir,image_path))
+        input_img = cv2.imread(r"E:\svnwc\Head_Pose_Estimation\FSA-Net\demo\img\421.png")
         if input_img is None:
             print("Invalid Image ", image_path)
             continue
@@ -211,6 +212,7 @@ def main():
         input_img = draw_results_ssd(detected,input_img,faces,ad,img_size,img_w,img_h,model,time_detection,time_network,time_plot)
         print(f"Filename: {os.path.basename(image_path)}")
         cv2.imwrite('img/'+str(img_idx)+'.png',input_img)
+        break
     
 
 if __name__ == '__main__':

@@ -2,9 +2,10 @@ from logging import exception
 import os
 import cv2
 import sys
-from keras.backend.theano_backend import reset_uids
+#from keras.backend.theano_backend import reset_uids
 
 from numpy.core.fromnumeric import resize
+import keras
 
 # dir path to the root dir of FSANET 
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -17,6 +18,7 @@ from lib import image_reader_util
 import numpy as np
 from keras.layers import Average
 import datetime
+import tensorflow as tf
 # from moviepy.editor import *
 # from mtcnn.mtcnn import MTCNN
 
@@ -25,6 +27,7 @@ import datetime
 #*********************Global Initialisation for speed up*************************#
 # face_cascade = cv2.CascadeClassifier('lbpcascade_frontalface_improved.xml')
 # detector = MTCNN()
+
 
 # load model and weights
 img_size = 64
@@ -79,6 +82,8 @@ x3 = model3(inputs) #w/o
 avg_model = Average()([x1,x2,x3])
 model = Model(inputs=inputs, outputs=avg_model)
 
+global graph
+graph = tf.get_default_graph() 
 
 
 # load our serialized face detector from disk
@@ -163,7 +168,8 @@ def draw_results_ssd(detected,input_img,faces,ad,img_size,img_w,img_h,model,time
                 faces[i,:,:,:] = cv2.normalize(faces[i,:,:,:], None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)        
                 
                 face = np.expand_dims(faces[i,:,:,:], axis=0)
-                p_result = model.predict(face)
+                with graph.as_default():
+                    p_result = model.predict(face)
                 
                 face = face.squeeze()
                 img, result_vector = draw_axis(input_img[yw1:yw2 + 1, xw1:xw2 + 1, :], p_result[0][0], p_result[0][1], p_result[0][2])
@@ -189,6 +195,7 @@ def detect_head_poses(input_img, debug = False):
     if input_img is None:
         print("Invalid Image")
         return None
+    #keras.backend.clear_session()
     img_h, img_w, _ = np.shape(input_img)
 
         
@@ -241,7 +248,7 @@ def CalculateResultPose(origin:tuple, point:tuple)->str:
         
     return result
 
-def DetectHeadPose(img:str, debug = False, tolerance=20)->dict:
+def DetectHeadPose(img:str, debug = False, level = "Easy")->dict:
     """
     params:
         img (str): Base64 image string
@@ -258,13 +265,14 @@ def DetectHeadPose(img:str, debug = False, tolerance=20)->dict:
 
     try:
         poses, result_vectors = detect_head_poses(input_img, debug=debug)
-    except exception as e:
+    except Exception as e:
         print(f"{datetime.datetime.utcnow()}  Exception at detect_head_poses \n", e)
         return result
 
     assert len(poses)==len(result_vectors)
     
-    result["Result"] = [{"Angles":{"Right":pose[0],"Up":pose[1], "Side":pose[2]},
+    tolerance = 20 if level.strip()=="Easy" else 15
+    result["Result"] = [{"Angles":{"Right":int(pose[0]),"Up":int(pose[1]), "Side":int(pose[2])},
                          "Direction":CalculateResultPose(result_vectors[idx][0], result_vectors[idx][1])}
                           for idx,pose in enumerate(poses) if (max(pose)>=tolerance and len(pose)==3)]
     
