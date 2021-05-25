@@ -6,3 +6,5 @@ __pycache__
 data
 training_and_testing/300W_*
 converted-models
+img
+demo/testImages
