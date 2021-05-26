@@ -1,11 +1,11 @@
-from logging import exception
+#from logging import exception
 import os
 import cv2
 import sys
 #from keras.backend.theano_backend import reset_uids
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 from numpy.core.fromnumeric import resize
-import keras
 
 # dir path to the root dir of FSANET 
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -15,12 +15,9 @@ import numpy as np
 from math import cos, sin
 from lib.FSANET_model import *
 from lib import image_reader_util
-import numpy as np
 from keras.layers import Average
 import datetime
 import tensorflow as tf
-# from moviepy.editor import *
-# from mtcnn.mtcnn import MTCNN
 
 
 
@@ -182,12 +179,6 @@ def draw_results_ssd(detected,input_img,faces,ad,img_size,img_w,img_h,model,time
                 result_vectors.append(result_vector)
 
                 #print(f"yaw: {yaw}, roll: {roll}, pitch: {pitch}")
-                pitch = pitch * np.pi / 180
-                yaw = -(yaw * np.pi / 180)
-                roll = roll * np.pi / 180
-                #print(f"yaw: {yaw}, roll: {roll}, pitch: {pitch}")
-
-    #cv2.imshow("result", input_img)
     
     return input_img, poses, result_vectors #,time_network,time_plot
 
