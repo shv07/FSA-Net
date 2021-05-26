@@ -178,7 +178,7 @@ def draw_results_ssd(detected,input_img,faces,ad,img_size,img_w,img_h,model,time
                 poses.append(tuple([yaw,pitch,roll]))
                 result_vectors.append(result_vector)
 
-                #print(f"yaw: {yaw}, roll: {roll}, pitch: {pitch}")
+                print(f"yaw: {yaw}, roll: {roll}, pitch: {pitch}")
     
     return input_img, poses, result_vectors #,time_network,time_plot
 
@@ -265,6 +265,6 @@ def DetectHeadPose(img:str, debug = False, level = "Easy")->dict:
     tolerance = 20 if level.strip()=="Easy" else 15
     result["Result"] = [{"Angles":{"Right":int(pose[0]),"Up":int(pose[1]), "Side":int(pose[2])},
                          "Direction":CalculateResultPose(result_vectors[idx][0], result_vectors[idx][1])}
-                          for idx,pose in enumerate(poses) if (max(pose)>=tolerance and len(pose)==3)]
+                          for idx,pose in enumerate(poses) if ((max(pose)>=tolerance or min(pose)<=-tolerance) and len(pose)==3)]
     
     return result
